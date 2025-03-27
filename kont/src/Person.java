@@ -1,9 +1,7 @@
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
-public class Person {
+public class Person implements Comparable<Person> {
     private final String name, surname;
     private final LocalDate birth;
     private final Set<Person> children;
@@ -25,14 +23,20 @@ public class Person {
         if (children.isEmpty())
             return null;
 
-        Person youngest = null;
-        for (Person child : children) {
-            if (youngest == null || child.birth.isAfter(youngest.birth)) {
-                youngest = child;
-            }
-        }
-        return youngest;
-    }
+        return Collections.max(children);
+//        Person youngest = null;
+//        for (Person child : children) {
+//            if (youngest == null || child.birth.isAfter(youngest.birth)) {
+//                youngest = child;
+//            }
+//        }
+//        return youngest;
+       }
+
+       public List<Person> getChildren(){
+        return children.stream().sorted().toList();
+
+       }
 
     @Override
     public String toString() {
@@ -43,4 +47,9 @@ public class Person {
                 ", children=" + children +
                 '}';
     }
-}
+    @Override
+    public int compareTo(Person o){
+        return this.birth.compareTo(o.birth);
+        }
+    }
+
