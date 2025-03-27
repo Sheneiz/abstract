@@ -19,7 +19,7 @@ public class Person implements Comparable<Person> {
        return children.add(p);
     }
 
-    public Person getyoungestChild() {
+    public Person getYoungestChild() {
         if (children.isEmpty())
             return null;
 

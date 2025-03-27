@@ -1,13 +1,10 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Family {
-    private final Map<String, List<Person>>family;
+    private final Map<String, List<Person>> family;
 
-    public Family(){
-     family = new HashMap<>();
+    public Family() {
+        family = new HashMap<>();
     }
 
     public void add(Person... people) {
@@ -15,16 +12,17 @@ public class Family {
             if (!family.containsKey(p.getFullName())) {
                 family.put(p.getFullName(), new ArrayList<>());
             }
-            family.get(p.getFullName().add(p));
+            family.get(p.getFullName()).add(p);
         }
     }
-    public  List<Person> get(String key){
-        List<Person>members =family.getOrDefault(key,new ArrayList<>());
-        System.out.println("Przed sortowaniem"+members);
-        return family.getOrDefault(key,new ArrayList<>())
+
+    public List<Person> get(String key) {
+//        List<Person> members = family.getOrDefault(key, new ArrayList<>());
+//        System.out.println("przed sortowaniem: "+members);
+//        Collections.sort(members);
+        return family.getOrDefault(key, new ArrayList<>())
                 .stream()
                 .sorted()
                 .toList();
-
     }
 }
