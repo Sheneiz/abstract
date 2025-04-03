@@ -4,11 +4,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 //import java.util.TreeSet;
 
-public class Person implements Comparable<Person>{
+public class Person implements Comparable<Person>, Serializable {
     private final String name, surname;
     private final LocalDate birth;
     private final LocalDate death;
@@ -46,8 +45,8 @@ public class Person implements Comparable<Person>{
         return new Person(fullName[0], fullName[1], birth, death);
     }
 
-    public static List<Person> fromCsv(String csvFileName) {
-        Map<String,Person> family = new HashMap<>();
+    public static List<Person> fromCsv(String csvFileName) throws AmbiguousPersonException {
+        Map<String, Person> family = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(csvFileName))) {
             br.readLine();      // ignorujemy pierwszą linię (nagłówek)
             String line;
@@ -55,79 +54,75 @@ public class Person implements Comparable<Person>{
                 try {
                     Person readPerson = fromCsvline(line);
                     if (family.containsKey(readPerson.getFullName())){
-
-                        throw new AmbigousPersonException(readPerson.getFullName());
+                        throw new AmbiguousPersonException(readPerson.getFullName());
                     }
-                    family.put(readPerson.getFullName(),readPerson);
-                    //dodawanie dzieci
-                    String[] elements = line.split(",",-1);
+                    family.put(readPerson.getFullName(), readPerson);
+                    // dodawanie dzieci
+                    String[] elements = line.split(",", -1);
                     Person parentA = family.get(elements[3]);
                     Person parentB = family.get(elements[4]);
-                    if (parentA != null){
-                     try {
-                        parentA.adopt(readPerson);
-                    }catch (ParentingAgeException e){
-                         System.out.println(e.getMessage());
-                         System.out.println("Are you sure you want to adopt?[Y/n(default)]");
-                            Scanner sc = new Scanner(System.in);
-                            if (sc.nextLine().equalsIgnoreCase("Y")){
-                                e.getParent().children.add(e.getChild());
-                            }
-                         }
-                    }
-                    if (parentB != null) {
+                    if(parentA != null) {
                         try {
-                            parentB.adopt(readPerson);
-                        } catch (ParentingAgeException e) {
+                            parentA.adopt(readPerson);
+                        } catch (ParentingAgeException e){
                             System.out.println(e.getMessage());
-                            System.out.println("Are you sure you want to adopt?[Y/n(default)]");
+                            System.out.println("Are you sure you want to adopt? [Y/n(default)]");
                             Scanner sc = new Scanner(System.in);
                             if (sc.nextLine().equalsIgnoreCase("Y")) {
                                 e.getParent().children.add(e.getChild());
                             }
                         }
                     }
+                    if(parentB != null) {
+                        try {
+                            parentB.adopt(readPerson);
+                        } catch (ParentingAgeException e){
+                            System.out.println(e.getMessage());
+                            System.out.println("Are you sure you want to adopt? [Y/n(default)]");
+                            Scanner sc = new Scanner(System.in);
+                            if (sc.nextLine().equalsIgnoreCase("Y")) {
+                                e.getParent().children.add(e.getChild());
+                            }
+                        }
+
+                    }
                 } catch (NegativeLifespanException e) {
                     // po prostu ignorujemy linię i nie dodajemy nic do listy
                     // nie ma potrzeby przerywania wczytywania całego pliku
                     System.err.println(e.getMessage());
-                }catch (ParentingAgeException e){
-                    System.err.println(e.getMessage());
                 }
             }
-
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
         return family.values().stream().toList();
     }
-    public static void  toBinaryFile(List<Person> personList,String fileName){
+
+    public static void toBinaryFile(List<Person> personList, String fileName) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName))){
             out.writeObject(personList);
-        }catch (IOException e){
+        } catch (IOException e) {
             System.err.println(e.getMessage());
         }
     }
 
-    public static List<Person> fromBinaryFile (String fileName){
+    public static List<Person> fromBinaryFile(String fileName) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName))){
             Object o = in.readObject();
             return (List<Person>) o;
-
-        }catch (IOException | ClassNotFoundException e){
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println(e.getMessage());
         }
-        return null;
+        return new ArrayList<>();
     }
 
-    public boolean adopt(Person p) throws ParentingAgeException{
+    public boolean adopt(Person p) throws ParentingAgeException {
         if (this == p)
             return false;
-        if (this.birth.until(p.birth).getYears()<15 ||
-        (this.death != null && this.death.isAfter(p.birth))){
-            throw new ParentingAgeException(this,p);
+        if (this.birth.until(p.birth).getYears() < 15 ||
+                (this.death != null && this.death.isBefore(p.birth))) {
+            throw new ParentingAgeException(this, p);
         }
-
         return children.add(p);
     }
 
