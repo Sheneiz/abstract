@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/OOP2.iml" filepath="$PROJECT_DIR$/.idea/OOP2.iml" />
       <module fileurl="file://$PROJECT_DIR$/decorator_example/decorator_example.iml" filepath="$PROJECT_DIR$/decorator_example/decorator_example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kont/kont.iml" filepath="$PROJECT_DIR$/kont/kont.iml" />
       <module fileurl="file://$PROJECT_DIR$/svg/svg.iml" filepath="$PROJECT_DIR$/svg/svg.iml" />
       <module fileurl="file://$PROJECT_DIR$/svg_decorator/svg_decorator.iml" filepath="$PROJECT_DIR$/svg_decorator/svg_decorator.iml" />
     </modules>
