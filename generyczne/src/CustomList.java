@@ -2,7 +2,7 @@ import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class CustomList <E> extends AbstractList<E> {
+public class CustomList <E> extends AbstractList<E> {
     private class Node {
         E value;
         Node next;
